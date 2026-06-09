@@ -12,4 +12,5 @@ public interface PedidoService {
     Optional<Pedido> findByCliente(String cliente);
     Pedido save(Pedido pedido);
     void deleteById(Long id);
+    Pedido crearPedido(Pedido pedido);
 }

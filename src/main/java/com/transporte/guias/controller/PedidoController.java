@@ -43,7 +43,7 @@ public class PedidoController {
     @PostMapping
     public PedidoResponse crearPedido(@RequestBody PedidoRequest dto) {
         Pedido pedido = PedidoMapper.toEntity(dto);
-        Pedido saved = pedidoService.save(pedido);
+        Pedido saved = pedidoService.crearPedido(pedido);
         return PedidoMapper.toDTO(saved);
     }
     

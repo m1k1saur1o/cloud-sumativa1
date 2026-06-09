@@ -4,6 +4,7 @@ public class PedidoRequest {
     private String cliente;
     private String direccion;
     private String transportista;
+    private String fecha;
     
     public String getCliente() {
         return cliente;
@@ -27,5 +28,13 @@ public class PedidoRequest {
 
     public void setTransportista(String transportista) {
         this.transportista = transportista;
+    }
+
+    public String getFecha() {
+        return fecha;
+    }
+    
+    public void setFecha(String fecha) {
+        this.fecha = fecha;
     }
 }
