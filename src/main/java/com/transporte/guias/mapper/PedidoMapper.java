@@ -11,7 +11,6 @@ public class PedidoMapper {
         p.setCliente(dto.getCliente());
         p.setDireccion(dto.getDireccion());
         p.setTransportista(dto.getTransportista());
-        p.setFecha(dto.getFecha());
         return p;
     }
 
@@ -20,8 +19,7 @@ public class PedidoMapper {
                 pedido.getId(),
                 pedido.getCliente(),
                 pedido.getDireccion(),
-                pedido.getTransportista(),
-                pedido.getFecha()
+                pedido.getTransportista()
         );
     }
 }

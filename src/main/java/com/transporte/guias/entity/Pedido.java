@@ -1,7 +1,5 @@
 package com.transporte.guias.entity;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,16 +23,13 @@ public class Pedido {
     @Column(nullable = false)
     private String transportista;
 
-    private LocalDate fecha;
-
     public Pedido() {}
 
-    public Pedido(Long id, String cliente, String direccion, String transportista, LocalDate fecha) {
+    public Pedido(Long id, String cliente, String direccion, String transportista) {
         this.id = id;
         this.cliente = cliente;
         this.direccion = direccion;
         this.transportista = transportista;
-        this.fecha = fecha;
     }
 
     public Long getId() {
@@ -67,13 +62,5 @@ public class Pedido {
 
     public void setTransportista(String transportista) {
         this.transportista = transportista;
-    }
-
-    public LocalDate getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
     }
 }

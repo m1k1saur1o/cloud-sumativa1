@@ -1,6 +1,5 @@
 package com.transporte.guias.controller;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,24 +43,10 @@ public class PedidoController {
     @PostMapping
     public PedidoResponse crearPedido(@RequestBody PedidoRequest dto) {
         Pedido pedido = PedidoMapper.toEntity(dto);
-        pedido.setFecha(LocalDate.now());
         Pedido saved = pedidoService.save(pedido);
         return PedidoMapper.toDTO(saved);
     }
     
-    @PutMapping("/{id}")
-    public ResponseEntity<PedidoResponse> actualizarPedido(@PathVariable Long id, @RequestBody PedidoRequest dto) {
-        return pedidoService.findById(id)
-                .map(pedido -> {
-                    pedido.setCliente(dto.getCliente());
-                    pedido.setDireccion(dto.getDireccion());
-                    pedido.setTransportista(dto.getTransportista());
-                    Pedido updated = pedidoService.save(pedido);
-                    return ResponseEntity.ok(PedidoMapper.toDTO(updated));
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     @DeleteExchange("/{id}")
     public ResponseEntity<Void> eliminarPedido(@PathVariable Long id) {
         if (pedidoService.findById(id).isPresent()) {
