@@ -1,11 +1,11 @@
 package com.transporte.guias.service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +24,14 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import com.transporte.guias.dto.S3ObjectDto;
-
-import com.transporte.guias.exception.InvalidFileException;
 import com.transporte.guias.exception.S3AccessDeniedException;
 import com.transporte.guias.exception.S3BucketNotFoundException;
 import com.transporte.guias.exception.S3ObjectNotFoundException;
 import com.transporte.guias.exception.S3OperationException;
 import com.transporte.guias.exception.S3UploadException;
+import com.transporte.guias.dto.PedidoRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.transporte.guias.config.S3BucketProperties;
 
 @Slf4j
 @Service
@@ -38,6 +39,8 @@ import com.transporte.guias.exception.S3UploadException;
 public class AwsS3Service {
 
 	private final S3Client s3Client;
+	private final ObjectMapper objectMapper;
+    private final S3BucketProperties s3BucketProperties;
 
 	/**
 	 * Lista todos los objetos en un bucket de S3
@@ -109,50 +112,45 @@ public class AwsS3Service {
 	}
 
 	/**
-	 * Sube un archivo a S3
-	 * 
+	 * Sube contenido (por ejemplo JSON serializado) a S3
+	 *
 	 * @param bucket Nombre del bucket
 	 * @param key    Clave del objeto
-	 * @param file   Archivo a subir
-	 * @throws InvalidFileException      si el archivo es inválido
+	 * @param content Contenido del archivo como byte array
+	 * @param contentType Tipo de contenido MIME (ej. "application/json")
+	 * @throws IllegalArgumentException      si el contenido es nulo o vacío
 	 * @throws S3BucketNotFoundException si el bucket no existe
 	 * @throws S3AccessDeniedException   si no hay permisos para subir
 	 * @throws S3UploadException         si hay error al subir el archivo
 	 */
-	public void upload(String bucket, String key, MultipartFile file) {
+	public void upload(String bucket, String key, byte[] content, String contentType) {
 
-		// Validaciones del archivo
-		if (file == null || file.isEmpty()) {
-			throw new InvalidFileException("El archivo está vacío o es nulo");
-		}
-
-		if (file.getOriginalFilename() == null || file.getOriginalFilename().isBlank()) {
-			throw new InvalidFileException("El nombre del archivo no es válido");
-		}
-
-		if (file.getSize() == 0) {
-			throw new InvalidFileException("El archivo no puede tener tamaño 0");
+		// Validar que el contenido no sea nulo ni vacío
+		if (content == null || content.length == 0) {
+			throw new IllegalArgumentException("El contenido a subir no puede ser nulo o vacío");
 		}
 
 		try {
-			log.info("Subiendo archivo: {} al bucket: {}, tamaño: {} bytes", key, bucket, file.getSize());
+			log.info("Subiendo contenido de {} bytes al bucket: {}, key: {}", content.length, bucket, key);
 
-			PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(key)
-					.contentType(file.getContentType()).contentLength(file.getSize()).build();
+			PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+					.bucket(bucket)
+					.key(key)
+					.contentType(contentType)
+					.contentLength((long) content.length)
+					.build();
 
-			s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+			s3Client.putObject(putObjectRequest, RequestBody.fromBytes(content));
 
-			log.info("Archivo subido exitosamente: {}", key);
+			log.info("Contenido subido exitosamente a: {}", key);
 
 		} catch (NoSuchBucketException e) {
 			throw new S3BucketNotFoundException(bucket, e);
 		} catch (S3Exception e) {
 			if (e.statusCode() == 403) {
-				throw new S3AccessDeniedException("subir archivo al bucket: " + bucket, e);
+				throw new S3AccessDeniedException("subir contenido al bucket: " + bucket, e);
 			}
-			throw new S3UploadException("Error al subir el archivo a S3: " + e.getMessage(), e);
-		} catch (IOException e) {
-			throw new S3UploadException("Error al leer el archivo: " + e.getMessage(), e);
+			throw new S3UploadException("Error al subir el contenido a S3: " + e.getMessage(), e);
 		}
 	}
 
@@ -222,4 +220,30 @@ public class AwsS3Service {
 			throw new S3OperationException("Error al eliminar el objeto: " + key, e);
 		}
 	}
+
+	/**
+     * Serializa el PedidoRequest a JSON y lo sube al bucket S3.
+     * La key se construye como: yyyyM/transportista/{id}.json
+     */
+    public void parsePedidoToJson(PedidoRequest request, Long pedidoId) {
+        try {
+            // Serializar PedidoRequest a JSON
+            String jsonContent = objectMapper.writeValueAsString(request);
+
+            // Construir el path (key) en S3
+            LocalDateTime now = LocalDateTime.now();
+            String year = String.valueOf(now.getYear());
+            int month = now.getMonthValue();
+            String transportista = request.getTransportista() != null ? request.getTransportista() : "unknown";
+            String key = year + month + "/" + transportista + "/" + pedidoId + ".json";
+
+            // Subir a S3 como application/json
+            byte[] contentBytes = jsonContent.getBytes(StandardCharsets.UTF_8);
+            upload(s3BucketProperties.getBucket(), key, contentBytes, "application/json");
+
+        } catch (Exception e) {
+            // Loguear el error pero no propagarlo para no romper el flujo del pedido
+            // El pedido ya fue guardado exitosamente en la BD
+        }
+    }
 }

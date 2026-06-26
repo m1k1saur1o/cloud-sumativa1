@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "pedidos")
 public class Pedido {
@@ -23,13 +25,17 @@ public class Pedido {
     @Column(nullable = false)
     private String transportista;
 
+    @Column(nullable = false)
+    private LocalDateTime fecha;
+
     public Pedido() {}
 
-    public Pedido(Long id, String cliente, String direccion, String transportista) {
+    public Pedido(Long id, String cliente, String direccion, String transportista, LocalDateTime fecha) {
         this.id = id;
         this.cliente = cliente;
         this.direccion = direccion;
         this.transportista = transportista;
+        this.fecha = fecha;
     }
 
     public Long getId() {
@@ -62,5 +68,13 @@ public class Pedido {
 
     public void setTransportista(String transportista) {
         this.transportista = transportista;
+    }
+
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
     }
 }

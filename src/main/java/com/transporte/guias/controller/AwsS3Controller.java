@@ -68,7 +68,7 @@ public class AwsS3Controller {
 	public ResponseEntity<Void> uploadObject(@PathVariable String bucket, @RequestParam String key,
 			@RequestParam("file") MultipartFile file) {
 
-		awsS3Service.upload(bucket, key, file);
+		//awsS3Service.(bucket, key, file);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
