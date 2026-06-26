@@ -1,10 +1,13 @@
 package com.transporte.guias.dto;
 
+import java.time.LocalDate;
+
 public class PedidoRequest {
     private String cliente;
     private String direccion;
     private String transportista;
-    
+    private LocalDate fecha;
+
     public String getCliente() {
         return cliente;
     }
@@ -27,5 +30,13 @@ public class PedidoRequest {
 
     public void setTransportista(String transportista) {
         this.transportista = transportista;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
     }
 }
