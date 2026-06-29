@@ -67,4 +67,4 @@ jobs:
             -e AWS_S3_ENROLLMENTS_BUCKET=${{ secrets.AWS_S3_ENROLLMENTS_BUCKET }} \
             ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
         EOF
-  
+        

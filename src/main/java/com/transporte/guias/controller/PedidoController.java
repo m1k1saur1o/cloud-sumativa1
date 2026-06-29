@@ -1,6 +1,7 @@
 package com.transporte.guias.controller;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,7 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<PedidoResponse> crearPedido(@RequestBody PedidoRequest dto) {
         Pedido pedido = PedidoMapper.toEntity(dto);
+        pedido.setFecha(LocalDateTime.now());
         Pedido saved = pedidoService.save(pedido);
 
         // Subir respaldo JSON a S3 solo si el guardado fue exitoso
