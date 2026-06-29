@@ -1,6 +1,7 @@
 package com.transporte.guias.controller;
 
 import java.util.List;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import com.transporte.guias.dto.PedidoRequest;
@@ -87,5 +89,61 @@ public class PedidoController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * Consulta pedidos por fecha
+     * GET /api/pedidos/search/fecha?fecha=2026-06-29
+     */
+    @GetMapping("/search/fecha")
+    public List<PedidoResponse> buscarPorFecha(@RequestParam LocalDate fecha) {
+        return pedidoService.findByFecha(fecha)
+                .stream()
+                .map(PedidoMapper::toDTO)
+                .toList();
+    }
+
+    /**
+     * Consulta pedidos por transportista
+     * GET /api/pedidos/search/transportista?transportista=t1
+     */
+    @GetMapping("/search/transportista")
+    public List<PedidoResponse> buscarPorTransportista(@RequestParam String transportista) {
+        return pedidoService.findByTransportista(transportista)
+                .stream()
+                .map(PedidoMapper::toDTO)
+                .toList();
+    }
+
+    /**
+     * Consulta pedidos por fecha y transportista
+     * GET /api/pedidos/search?fecha=2026-06-29&transportista=t1
+     */
+    @GetMapping("/search")
+    public List<PedidoResponse> buscarPorFechaYTransportista(
+            @RequestParam(required = false) LocalDate fecha,
+            @RequestParam(required = false) String transportista) {
+
+        if (fecha != null && transportista != null) {
+            return pedidoService.findByFechaYTransportista(fecha, transportista)
+                    .stream()
+                    .map(PedidoMapper::toDTO)
+                    .toList();
+        } else if (fecha != null) {
+            return pedidoService.findByFecha(fecha)
+                    .stream()
+                    .map(PedidoMapper::toDTO)
+                    .toList();
+        } else if (transportista != null) {
+            return pedidoService.findByTransportista(transportista)
+                    .stream()
+                    .map(PedidoMapper::toDTO)
+                    .toList();
+        } else {
+            return pedidoService.findAll()
+                    .stream()
+                    .map(PedidoMapper::toDTO)
+                    .toList();
+        }
     }
 }

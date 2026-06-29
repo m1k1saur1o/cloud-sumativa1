@@ -1,5 +1,6 @@
 package com.transporte.guias.service.Implementation;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,5 +40,20 @@ public class PedidoServiceImplementation implements PedidoService {
     @Override
     public void deleteById(Long id) {
         pedidoRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Pedido> findByFecha(LocalDate fecha) {
+        return pedidoRepository.findByFecha(fecha);
+    }
+
+    @Override
+    public List<Pedido> findByTransportista(String transportista) {
+        return pedidoRepository.findByTransportista(transportista);
+    }
+
+    @Override
+    public List<Pedido> findByFechaYTransportista(LocalDate fecha, String transportista) {
+        return pedidoRepository.findByFechaYTransportista(fecha, transportista);
     }
 }
