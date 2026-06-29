@@ -70,7 +70,12 @@ public class PedidoController {
                     pedido.setCliente(dto.getCliente());
                     pedido.setDireccion(dto.getDireccion());
                     pedido.setTransportista(dto.getTransportista());
-                    return ResponseEntity.ok(PedidoMapper.toDTO(pedidoService.save(pedido)));
+                    Pedido saved = pedidoService.save(pedido);
+
+                    // Actualizar JSON en S3 con la misma key que se usó al crear
+                    awsS3Service.parsePedidoToJson(dto, saved.getId());
+
+                    return ResponseEntity.ok(PedidoMapper.toDTO(saved));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }

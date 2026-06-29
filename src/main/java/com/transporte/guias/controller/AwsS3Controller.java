@@ -17,6 +17,8 @@ import com.transporte.guias.dto.S3ObjectDto;
 import com.transporte.guias.service.AwsS3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -100,5 +102,22 @@ public class AwsS3Controller {
 
 		awsS3Service.deleteObject(bucket, key);
 		return ResponseEntity.noContent().build();
+	}
+
+	/**
+	 * Actualiza un objeto existente en S3 (sobrescribe el contenido)
+	 * 
+	 * @param bucket Nombre del bucket
+	 * @param key    Clave del objeto a actualizar
+	 * @param content Nuevo contenido del archivo
+	 * @return Respuesta de éxito
+	 */
+	@PutMapping("/{bucket}/object")
+	public ResponseEntity<Void> updateObject(@PathVariable String bucket,
+			@RequestParam String key,
+			@RequestBody String content) {
+
+		awsS3Service.upload(bucket, key, content.getBytes(java.nio.charset.StandardCharsets.UTF_8), "application/json");
+		return ResponseEntity.ok().build();
 	}
 }
