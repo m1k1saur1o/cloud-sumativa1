@@ -15,12 +15,12 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     Optional<Pedido> findByCliente(String cliente);
     boolean existsByCliente(String cliente);
 
-    @Query("SELECT p FROM Pedido p WHERE DATE(p.fecha) = :date")
+    @Query("SELECT p FROM Pedido p WHERE CAST(p.fecha AS DATE) = :date")
     List<Pedido> findByFecha(@Param("date") LocalDate date);
 
     @Query("SELECT p FROM Pedido p WHERE p.transportista = :transportista")
     List<Pedido> findByTransportista(@Param("transportista") String transportista);
 
-    @Query("SELECT p FROM Pedido p WHERE DATE(p.fecha) = :date AND p.transportista = :transportista")
+    @Query("SELECT p FROM Pedido p WHERE CAST(p.fecha AS DATE) = :date AND p.transportista = :transportista")
     List<Pedido> findByFechaYTransportista(@Param("date") LocalDate date, @Param("transportista") String transportista);
 }
