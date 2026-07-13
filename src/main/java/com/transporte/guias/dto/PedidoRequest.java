@@ -1,7 +1,5 @@
 package com.transporte.guias.dto;
 
-import java.time.LocalDateTime;
-
 public class PedidoRequest {
     private String cliente;
     private String direccion;
