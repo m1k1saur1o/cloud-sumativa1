@@ -26,7 +26,7 @@ public class ConsumirMensajeService {
 	private final AwsS3Service awsS3Service;
 	private final ObjectMapper objectMapper;
 
-	@RabbitListener(id = "listener-myQueue", queues = "myQueue", ackMode = "MANUAL")
+	@RabbitListener(id = "listener-myQueue", queues = "myQueue", ackMode = "MANUAL", containerFactory = "rawRabbitListenerContainerFactory")
 	public void recibirMensajeConAckManual(Message mensaje, Channel canal) throws IOException {
 
 		try {
